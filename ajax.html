@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Busca de Filmes</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #222;
+            color: white;
+            text-align: center;
+        }
+        .card {
+            background-color: #333;
+            color: white;
+        }
+    </style>
+</head>
+<body class="bg-dark text-white">
+    <div class="container py-5">
+        <h1 class="text-center mb-4">Busca de Filmes</h1>
+        <div class="input-group mb-3">
+            <input type="text" id="searchInput" class="form-control" placeholder="Digite o nome do filme...">
+            <button id="searchButton" class="btn btn-primary">Buscar</button>
+        </div>
+        <div id="results" class="row g-4"></div>
+    </div>
+    
+    <script>
+        async function buscarFilme() {
+            let titulo = document.getElementById("searchInput").value;
+            if (!titulo) {
+                alert("Digite um nome de filme!");
+                return;
+            }
+            
+            let url = `https://api.themoviedb.org/3/search/movie?api_key=937772fa0e1e2d7ecce8913062aabf68&query=${titulo}&language=pt-BR`;
+            let resposta = await fetch(url, {
+                headers: {
+                    Authorization: "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI5Mzc3NzJmYTBlMWUyZDdlY2NlODkxMzA2MmFhYmY2OCIsIm5iZiI6MTczODY4Mjc0My45MDcsInN1YiI6IjY3YTIzMTc3NmI5ZjY2NmE5OTAzMGJhMiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.53l5ot28fxGO5GWtX1ToQ8sfZgxtnm9V_nzz6ZBfKB8"
+                }
+            });
+            let dados = await resposta.json();
+            
+            let resultado = document.getElementById("results");
+            resultado.innerHTML = "";
+            
+            if (dados.results.length > 0) {
+                dados.results.forEach(filme => {
+                    resultado.innerHTML += `
+                        <div class="col-md-4 mt-3">
+                            <div class="card">
+                                <img src="https://image.tmdb.org/t/p/w500${filme.poster_path}" class="card-img-top" alt="${filme.title}">
+                                <div class="card-body">
+                                    <h5 class="card-title">${filme.title}</h5>
+                                    <p class="card-text">Ano: ${filme.release_date.split('-')[0]}</p>
+                                    <p class="card-text">${filme.overview}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            } else {
+                resultado.innerHTML = `<p class="text-danger">Filme não encontrado!</p>`;
+            }
+        }
+        document.getElementById("searchButton").addEventListener("click", buscarFilme);
+    </script>
+</body>
+</html>
